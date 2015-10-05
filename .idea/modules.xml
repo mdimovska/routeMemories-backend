@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/saycheese_server.iml" filepath="$PROJECT_DIR$/saycheese_server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/routeMemories-backend.iml" filepath="$PROJECT_DIR$/routeMemories-backend.iml" />
     </modules>
   </component>
 </project>
-
