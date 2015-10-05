@@ -39,6 +39,7 @@ var fs = require('fs-extra');
 //}).listen(8080);
 
 app.get('/', function (req, res) {
+    res.send({"object1":"test"});
     //next();?????
 });
 //app.get("/picture/:id/:imageId", function (req, res) {
@@ -154,6 +155,8 @@ app.get('/users', function (req, res) { //404 if /users/
 //            res.send(400);
 //        }
 //    });
+
+    res.send({"object1":"test"});
 });
 
 //OK
