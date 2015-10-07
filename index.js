@@ -39,7 +39,7 @@ var fs = require('fs-extra');
 //}).listen(8080);
 
 app.get('/', function (req, res) {
-    res.send({"object1":"test"});
+    res.send({"object1aaa":"test"});
     //next();?????
 });
 //app.get("/picture/:id/:imageId", function (req, res) {
@@ -125,7 +125,7 @@ app.post('/register', function (req, res) {
 //        models.User.findById(_id, function (user) {
 //            if (user) {
 //                console.log('user already registered');
-//                res.send(200);
+                res.send(200);
 //            }
 //            else {
 //                console.log("Registering new user...");
@@ -155,8 +155,6 @@ app.get('/users', function (req, res) { //404 if /users/
 //            res.send(400);
 //        }
 //    });
-
-    res.send({"object1":"test"});
 });
 
 //OK
@@ -485,7 +483,7 @@ app.post('/photos/like', function (req, res) {
     }
 });
 
-var server = app.listen(9099, function () {
+var server = app.listen(8080, function () {
   var host = server.address().address;
   var port = server.address().port;
 
