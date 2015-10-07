@@ -374,7 +374,7 @@ app.post('/photos/like', function (req, res) {
     }
 });
 
-var server = app.listen(80, function () {});
+app.listen(80, function () {});
 
 
 module.exports = app;
