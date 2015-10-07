@@ -28,7 +28,21 @@ mongoose.connect(mongooseUri, function onMongooseError(err) {
         console.log(JSON.stringify(err));
         throw err;
     }
+});
 
+//CORS middleware
+var allowCrossDomain = function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+}
+app.use(allowCrossDomain);
+
+app.all('/*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+//  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
 });
 
 
@@ -46,8 +60,7 @@ mongoose.connect(mongooseUri, function onMongooseError(err) {
 //}).listen(8080);
 
 app.get('/', function (req, res) {
-    res.send({"object1aaa": "test"});
-    //next();?????
+    next();
 });
 //app.get("/picture/:id/:imageId", function (req, res) {
 //    var img = fs.readFileSync("/Users/gkopevski/gk/md/saycheese/images/" + req.params.id + "/" + req.params.imageId);
@@ -118,16 +131,15 @@ app.post("/deletePicture", function (req, res) {
 
 app.post('/register', function (req, res) {
     var _id = req.body.id;
-    var firstName = req.body.firstName;
-    var lastName = req.body.lastName;
+    console.log("param id: " + req.params.id);
+    var name = req.body.name;
     var pictureUrl = req.body.pictureUrl;
     if (null == _id || _id.length < 1 || _id == '') {
         console.log("the id: '" + _id + "' is not properly set");
         res.sendStatus(400);
     } else {
         console.log('id: ', _id);
-        console.log('firstName: ', firstName);
-        console.log('lastName: ', lastName);
+        console.log('name: ', name);
         console.log('pictureUrl: ', pictureUrl);
         models.User.findById(_id, function (user) {
             if (user) {
@@ -136,7 +148,7 @@ app.post('/register', function (req, res) {
             }
             else {
                 console.log("Registering new user...");
-                models.User.register(_id, firstName, lastName, pictureUrl, function (success) {
+                models.User.register(_id, name, pictureUrl, function (success) {
                     if (!success) {
                         res.sendStatus(400);
                     } else {
@@ -184,14 +196,13 @@ app.get('/users/:id', function (req, res) { //404 if /users/
 app.post('/photos/photo', function (req, res) {
     console.log('add photo request');
     var userId = req.param('userId', null);
-    var firstName = req.param('firstName', null);
-    var lastName = req.param('lastName', null);
+    var name = req.param('name', null);
     var photoUrl = req.param('photoUrl', null);
     var caption = req.param('caption', null);
     if (null == userId || userId.length < 1 || userId == '' || null == photoUrl || photoUrl.length < 1 || photoUrl == '') {
         res.send(400);
     } else {
-//        models.Photo.addPhoto(userId, firstName, lastName, photoUrl, caption, function (success) {
+//        models.Photo.addPhoto(userId, name, photoUrl, caption, function (success) {
 //            if (!success) {
 //                res.send(400);
 //            } else {
@@ -211,7 +222,7 @@ app.post('/routes', function (req, res) {
     var startDate = req.body.startDate;
     var endDate = req.body.endDate;
     var routeName = req.body.routeName;
-    
+
     if (null === userId || userId.length < 1 || userId === '') {
         console.log("Bad request. Trying to add route for a user with id: '" + userId + "'");
         res.sendStatus(400);
@@ -265,7 +276,6 @@ app.get('/routes/getRoutesByUser', function (req, res) {
 //get all routes from database
 app.get('/routes/', function (req, res) {
     models.Route.getAllRoutes(function (routeList) {
-        console.log(new Date());
         res.sendStatus(routeList);
     });
 });

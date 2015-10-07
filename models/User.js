@@ -2,8 +2,7 @@ module.exports = function (mongoose) {
 
     var UserSchema = new mongoose.Schema({
         _id: {type: String, unique: true},
-        firstName: {type: String},
-        lastName: {type: String},
+        name: {type: String},
         pictureUrl: {type: String}
     });
 
@@ -25,12 +24,11 @@ module.exports = function (mongoose) {
 
 
     //OK
-    var register = function (_id, firstName, lastName, pictureUrl, callback) {
+    var register = function (_id, name, pictureUrl, callback) {
         console.log('Registering ' + _id);
         var user = new User({
             _id: _id,
-            firstName: firstName,
-            lastName: lastName,
+            name: name,
             pictureUrl: pictureUrl
         });
         user.save(function (err) {
