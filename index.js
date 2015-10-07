@@ -1,11 +1,10 @@
 var express = require("express");
-var app = express();
 var mongoose = require('mongoose');
 var dbPath = 'mongodb://mdimovska:dmilena@ds033484.mongolab.com:33484/heroku_jxq1lgpl';
 var uriUtil = require('mongodb-uri');
 var mongooseUri = uriUtil.formatMongoose(dbPath);
 var bodyParser = require('body-parser');
-
+var fs = require('fs-extra');
 var formidable = require('formidable'),
         http = require('http'),
         util = require('util');
@@ -16,9 +15,11 @@ var models = {
     User: require('./models/User')(mongoose),
     Route: require('./models/Route')(mongoose)
 };
+
 var imageLocations = "/Users/gkopevski/gk/md/saycheese/images";
 
-var fs = require('fs-extra');
+var app = express();
+
 // configure app to use bodyParser()
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({extended: true}));
@@ -379,3 +380,6 @@ var server = app.listen(8080, function () {
 
     console.log('Example app listening at http://%s:%s', host, port);
 });
+
+
+module.exports = app;
