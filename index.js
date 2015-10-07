@@ -1,13 +1,16 @@
 var express = require("express");
 var app = express();
-var dbPath = 'mongodb://heroku_jxq1lgpl:pkece2donmia6u2uec6bjpb60q@ds033484.mongolab.com:33484/heroku_jxq1lgpl';
+var mongoose = require('mongoose');
+var dbPath = 'mongodb://mdimovska:dmilena@ds033484.mongolab.com:33484/heroku_jxq1lgpl';
+var uriUtil = require('mongodb-uri');
+var mongooseUri = uriUtil.formatMongoose(dbPath);
 var bodyParser = require('body-parser');
 
 var formidable = require('formidable'),
         http = require('http'),
         util = require('util');
 //// Import the data layer
-var mongoose = require('mongoose');
+
 // Import the models
 var models = {
     User: require('./models/User')(mongoose),
@@ -20,8 +23,12 @@ var fs = require('fs-extra');
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-mongoose.connect(dbPath, function onMongooseError(err) {
-	if (err) throw err;
+mongoose.connect(mongooseUri, function onMongooseError(err) {
+	if (err){
+        console.log(JSON.stringify(err));
+        throw err;
+    }
+
 });
 
 
@@ -110,13 +117,13 @@ app.post("/deletePicture", function (req, res) {
 
 
 app.post('/register', function (req, res) {
-    var _id = req.param('_id', null);
-    var firstName = req.param('firstName', '');
-    var lastName = req.param('lastName', '');
-    var pictureUrl = req.param('pictureUrl', '');
+    var _id = req.body.id;
+    var firstName = req.body.firstName;
+    var lastName = req.body.lastName;
+    var pictureUrl = req.body.pictureUrl;
     if (null == _id || _id.length < 1 || _id == '') {
         console.log("the id: '" + _id + "' is not properly set");
-        res.send(400);
+        res.sendStatus(400);
     } else {
         console.log('id: ', _id);
         console.log('firstName: ', firstName);
@@ -125,17 +132,16 @@ app.post('/register', function (req, res) {
         models.User.findById(_id, function (user) {
             if (user) {
                 console.log('user already registered');
-                res.send(200);
+                res.sendStatus(200);
             }
             else {
                 console.log("Registering new user...");
-                res.send(200); // TODO comment
                 //TODO uncomment
 				models.User.register(_id, firstName, lastName, pictureUrl, function(success) {
 					if ( !success ) {
-						res.send(400);
+						res.sendStatus(400);
 					}else{
-						res.send(200);
+						res.sendStatus(200);
 					}
 				});
             }
@@ -147,14 +153,14 @@ app.post('/register', function (req, res) {
 //returns users
 app.get('/users', function (req, res) { //404 if /users/
     // TODO uncomment
-//    models.User.findAllUsers(function (users) {
-//        if (users) {
-//            res.send(users);
-//        }
-//        else {
-//            res.send(400);
-//        }
-//    });
+    models.User.findAllUsers(function (users) {
+        if (users) {
+            res.sendStatus(users);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    });
 });
 
 //OK
