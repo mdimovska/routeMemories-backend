@@ -277,7 +277,8 @@ app.get('/routes/getRoutesByUser', function (req, res) {
 //get all routes from database
 app.get('/routes/', function (req, res) {
     models.Route.getAllRoutes(function (routeList) {
-        res.sendStatus(routeList);
+        res.setHeader('Content-Type', 'application/json');
+        res.send(routeList);
     });
 });
 
