@@ -1,46 +1,27 @@
 module.exports = function (mongoose) {
 
-    var Comment = new mongoose.Schema({
-        userId: {type: String},
-        firstName: {type: String},
-        lastName: {type: String},
-        comment: {type: String},
-        date: {type: Date} // When the comment was added
-    });
-
-    var Like = new mongoose.Schema({
-        userId: {type: String},
-        firstName: {type: String},
-        lastName: {type: String},
-        date: {type: Date} // When the like was added
-    });
-
     var PhotoSchema = new mongoose.Schema({
-        userId: {type: String},
-        firstName: {type: String}, //
-        lastName: {type: String}, //
+        routeId: {type: String},
         photoUrl: {type: String},
-        caption: {type: String},
+//        caption: {type: String},
         lat: {type: String},
         lng: {type: String},
         dateTaken: {type: Date},
         removed: {type: String}, //0-not removed, 1-removed
         photoWidth: {type: String},
         photoHeight: {type: String},
-        comments: [Comment],
-        likes: [Like]
     });
 
     var Photo = mongoose.model('Photo', PhotoSchema);
 
     //OK
-    var addPhoto = function (userId, photoUrl, lat, lng, photoWidth, photoHeight, callback) {
+    var addPhoto = function (routeId, photoUrl, lat, lng, dateTaken, photoWidth, photoHeight, callback) {
         var photo = new Photo({
-            userId: userId,
+            routeId: routeId,
             photoUrl: photoUrl,
             lat: lat,
             lng: lng,
-            dateTaken: new Date(),
+            dateTaken: dateTaken,
             photoWidth: photoWidth,
             photoHeight: photoHeight,
             removed: 0
@@ -80,8 +61,8 @@ module.exports = function (mongoose) {
     }
 
     //OK
-    var getUserPhotos = function (userId, callback) {
-        Photo.find({userId: userId, removed: "0"}, {}, {sort: {dateTaken: -1}}, function (err, doc) { //check
+    var getRoutePhotos = function (routeId, callback) {
+        Photo.find({routeId: routeId, removed: "0"}, {}, {sort: {dateTaken: -1}}, function (err, doc) { //check
             callback(doc);
         });
     }
@@ -109,42 +90,12 @@ module.exports = function (mongoose) {
         });
     }
 
-    //OK
-    var getPhotosByUsers = function (usersIdArray, callback) { //users = id1 id2 ... 
-        Photo.find({userId: {$in: usersIdArray}, removed: 0}, {}, {sort: {dateTaken: -1}}, function (err, result) {
-            callback(result);
-        });
-    }
-
-    //OK
-    var addComment = function (photo, userId, firstName, lastName, comment, callback) {
-        var newComment = {
-            userId: userId,
-            firstName: firstName,
-            lastName: lastName,
-            comment: comment,
-            date: new Date()
-        };
-        photo.comments.push(newComment);
-        photo.save(function (err) {
-            if (err) {
-                console.log('Error adding a comment: ' + err);
-                callback(false);
-            } else {
-                console.log('Comment was added');
-                callback(true);
-            }
-        });
-    };
 
     return {
         findById: findById,
         addPhoto: addPhoto,
         removePhoto: removePhoto,
-        getUserPhotos: getUserPhotos,
-        getPhotosByUsers: getPhotosByUsers,
-        addComment: addComment,
-        addOrRemoveLike: addOrRemoveLike,
+        getRoutePhotos: getRoutePhotos,
         getAllPhotos: getAllPhotos,
         Photo: Photo
     }
