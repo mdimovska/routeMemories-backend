@@ -3,6 +3,9 @@
   "main": "index.js",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
   "dependencies": {
     "body-parser": "~1.13.2",
     "express": "~4.13.1",
@@ -13,4 +16,5 @@
     "mongodb-uri":"~0.9.3"
   }
 }
+
 
