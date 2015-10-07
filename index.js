@@ -24,7 +24,7 @@ var fs = require('fs-extra');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 mongoose.connect(mongooseUri, function onMongooseError(err) {
-	if (err){
+    if (err) {
         console.log(JSON.stringify(err));
         throw err;
     }
@@ -46,7 +46,7 @@ mongoose.connect(mongooseUri, function onMongooseError(err) {
 //}).listen(8080);
 
 app.get('/', function (req, res) {
-    res.send({"object1aaa":"test"});
+    res.send({"object1aaa": "test"});
     //next();?????
 });
 //app.get("/picture/:id/:imageId", function (req, res) {
@@ -136,14 +136,13 @@ app.post('/register', function (req, res) {
             }
             else {
                 console.log("Registering new user...");
-                //TODO uncomment
-				models.User.register(_id, firstName, lastName, pictureUrl, function(success) {
-					if ( !success ) {
-						res.sendStatus(400);
-					}else{
-						res.sendStatus(200);
-					}
-				});
+                models.User.register(_id, firstName, lastName, pictureUrl, function (success) {
+                    if (!success) {
+                        res.sendStatus(400);
+                    } else {
+                        res.sendStatus(200);
+                    }
+                });
             }
         });
     }
@@ -152,7 +151,6 @@ app.post('/register', function (req, res) {
 //OK
 //returns users
 app.get('/users', function (req, res) { //404 if /users/
-    // TODO uncomment
     models.User.findAllUsers(function (users) {
         if (users) {
             res.sendStatus(users);
@@ -167,178 +165,17 @@ app.get('/users', function (req, res) { //404 if /users/
 //returns user info by userId   __v is redundant
 app.get('/users/:id', function (req, res) { //404 if /users/
     var userId = req.params.id;
-    // TODO uncomment
-//    models.User.findById(userId, function (user) {
-//        if (user) {
-//            res.send(user);
-//        }
-//        else {
-//            res.send(400);
-//        }
-//    });
+    models.User.findById(userId, function (user) {
+        if (user) {
+            res.sendStatus(user);
+        }
+        else {
+            console.log("User with id: '" + userId + "' not found")
+            res.sendStatus(400);
+        }
+    });
 });
 
-
-
-//OK
-//add contact
-app.post('/users/addContact', function (req, res) {
-    var userId = req.param('userId', null);
-    var contactId = req.param('contactId', null);
-    // Missing contactId, don't bother going any further
-    if (null == userId || userId == '' || null == contactId || contactId == '') {
-        res.send(400);
-    } else {
-        //TODO uncomment
-//        models.User.findById(userId, function (user) {
-//            if (user) {
-//                models.User.findById(contactId, function (contact) {
-//                    if (!contact) {
-//                        res.send(400);
-//                    } else {
-//                        models.User.addContact(user, contact, function (success) {
-//                            console.log('adding finished');
-//                            if (!success) {
-//                                res.send(400);
-//                            } else {
-//                                res.send(200);
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-//            else {
-//                res.send(400);
-//            }
-//        });
-    }
-});
-
-
-//OK
-//remove contact or friend request...  //contact instead of removeContact!
-app.post('/users/removeContact', function (req, res) {
-    var userId = req.param('userId', null);
-    var contactId = req.param('contactId', null);
-    // Missing contactId, don't bother going any further
-    if (null == userId || userId == '' || null == contactId || contactId == '') {
-        res.send(400);
-    }
-    else {
-        //TODO uncomment
-//        models.User.findById(userId, function (user) {
-//            if (user) {
-//                models.User.findById(contactId, function (contact) {
-//                    if (!contact) {
-//                        res.send(400);
-//                    } else {
-//                        models.User.removeContact(user, contact._id);
-//                        models.User.removeContact(contact, user._id);
-//                        res.send(200);
-//                    }
-//                });
-//            }
-//            else {
-//                res.send(400);
-//            }
-//        });
-    }
-});
-
-
-//OK
-//get friend requests
-app.get('/users/:id/friendRequests', function (req, res) {
-    var userId = req.params.id;
-
-//TODO uncomment
-//    models.User.findById(userId, function (user) {
-//        if (user) {
-//            var friends = [];
-//            user.contacts.forEach(function (contact) {
-//                if (contact.status == 'requested') {
-//                    friends.push(contact);
-//                }
-//            });
-//            res.send(friends);
-//        }
-//        else {
-//            res.send(400);
-//        }
-//    });
-});
-
-//OK
-//accept friend
-app.post('/users/:id/acceptFriend', function (req, res) {
-    var userId = req.params.id; //requested
-    var contactId = req.param('contactId', null); //pending
-    // Missing contactId, don't bother going any further
-    if (null == userId || userId == '' || null == contactId || contactId == '') {
-        res.send(400);
-    } else {
-//        models.User.findById(userId, function (user) {
-//            if (user) {
-//                models.User.findById(contactId, function (contact) {
-//                    if (!contact) {
-//                        res.send(400);
-//                    } else {
-//                        models.User.acceptFriend(user, contact, function (success) {
-//                            if (!success) {
-//                                res.send(400);
-//                            } else {
-//                                res.send(200);
-//                            }
-//                        });
-//                    }
-//                });
-//            }
-//            else {
-//                res.send(400);
-//            }
-//        });
-    }
-});
-
-
-//OK
-//get friends (status == 'friends')
-app.get('/users/:id/contacts', function (req, res) {
-    var userId = req.params.id;
-
-//    models.User.findById(userId, function (user) {
-//        if (user) {
-//            var friends = [];
-//            user.contacts.forEach(function (contact) {
-//                if (contact.status == 'friends') {
-//                    friends.push(contact);
-//                }
-//            });
-//            res.send(friends);
-//        }
-//        else {
-//            res.send(400);
-//        }
-//    });
-});
-
-
-//OK
-//find friends (users that are not friends or pending)
-app.post('/users/:id/findFriends', function (req, res) {
-    var userId = req.params.id;
-    var fbContacts = req.param('fbContacts', null); //list of ids of user's fb friends in form:   id1 id2 id3 id4
-//    models.User.findById(userId, function (user) {
-//        if (user) {
-//            models.User.findFacebookFriends(user, fbContacts, function (users) {
-//                res.send(users);
-//            });
-//        }
-//        else {
-//            res.send(400);
-//        }
-//    });
-});
 
 // ============================== PHOTOS ============================== //
 
@@ -363,6 +200,32 @@ app.post('/photos/photo', function (req, res) {
 //        });
     }
 });
+
+
+//OK
+//add route
+app.post('/routes', function (req, res) {
+    console.log('add route request');
+    var userId = req.body.userId;
+    var latLngList = req.body.latLngList;
+    var startDate = req.body.startDate;
+    var endDate = req.body.endDate;
+    var routeName = req.body.routeName;
+    
+    if (null === userId || userId.length < 1 || userId === '') {
+        console.log("Bad request. Trying to add route for a user with id: '" + userId + "'");
+        res.sendStatus(400);
+    } else {
+        models.Route.addRoute(userId, latLngList, startDate, endDate, routeName, function (success) {
+            if (!success) {
+                res.sendStatus(400);
+            } else {
+                res.sendStatus(200);
+            }
+        });
+    }
+});
+
 
 //OK
 //delete photo
@@ -389,6 +252,42 @@ app.delete('/photos/photo', function (req, res) {
 });
 
 //OK
+//get user's routes    //if only /routes/ 404 Not Found error
+// if wrong id (id that do not exists in db), returns []
+app.get('/routes/getRoutesByUser', function (req, res) {
+    var userId = req.params.userId;
+    models.Route.getUserRoutes(userId, function (routeList) {
+        res.sendStatus(routeList);
+    });
+});
+
+//OK
+//get all routes from database
+app.get('/routes/', function (req, res) {
+    models.Route.getAllRoutes(function (routeList) {
+        console.log(new Date());
+        res.sendStatus(routeList);
+    });
+});
+
+//OK
+//returns route info by routeId   __v is redundant
+app.get('/routes/:id', function (req, res) { //404 if /route/
+    var routeId = req.params.id;
+    models.Route.findById(routeId, function (route) {
+        if (route) {
+            res.sendStatus(route);
+        }
+        else {
+            console.log("Route with id: '" + routeId + "' not found")
+            res.sendStatus(400);
+        }
+    });
+});
+
+
+
+//OK
 //get user's photos    //if only /photos/ 404 Not Found error
 // if wrong id (id that do not exists in db), returns []
 app.get('/photos/:id', function (req, res) {
@@ -405,31 +304,6 @@ app.get('/photos/', function (req, res) {
 //        res.send(photos);
 //    });
 });
-
-//OK
-//get photos of user's friends
-app.get('/photos/:id/latest', function (req, res) {
-    var userId = req.params.id;
-
-//    models.User.findById(userId, function (user) {
-//        if (user) {
-//            var friendsList = []; //list of ids of user's friends
-//            user.contacts.forEach(function (contact) {
-//                if (contact.status == 'friends') {
-//                    friendsList.push(contact.userId);
-//                }
-//            });
-//            friendsList.push(userId);
-//            models.Photo.getPhotosByUsers(friendsList, function (photos) {
-//                res.send(photos);
-//            });
-//        }
-//        else {
-//            res.send(400);
-//        }
-//    });
-});
-
 
 //OK
 //add comment
@@ -490,8 +364,8 @@ app.post('/photos/like', function (req, res) {
 });
 
 var server = app.listen(8080, function () {
-  var host = server.address().address;
-  var port = server.address().port;
+    var host = server.address().address;
+    var port = server.address().port;
 
-  console.log('Example app listening at http://%s:%s', host, port);
+    console.log('Example app listening at http://%s:%s', host, port);
 });

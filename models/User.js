@@ -17,8 +17,8 @@ module.exports = function (mongoose) {
     };
 
     //OK
-    var findById = function (accountId, callback) {
-        User.findOne({_id: accountId}, function (err, doc) {
+    var findById = function (userId, callback) {
+        User.findOne({_id: userId}, function (err, doc) {
             callback(doc);
         });
     }
