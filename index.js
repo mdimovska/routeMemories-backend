@@ -1,28 +1,28 @@
 var express = require("express");
 var app = express();
-//var dbPath = 'mongodb://localhost/saycheese';
-//var bodyParser = require('body-parser');
+var dbPath = 'mongodb://heroku_jxq1lgpl:pkece2donmia6u2uec6bjpb60q@ds033484.mongolab.com:33484/heroku_jxq1lgpl';
+var bodyParser = require('body-parser');
 
-//var formidable = require('formidable'),
-//        http = require('http'),
-//        util = require('util');
+var formidable = require('formidable'),
+        http = require('http'),
+        util = require('util');
 //// Import the data layer
-//var mongoose = require('mongoose');
+var mongoose = require('mongoose');
 // Import the models
-//var models = {
-//    User: require('./models/User')(mongoose),
-//    Photo: require('./models/Photo')(mongoose)
-//};
+var models = {
+    User: require('./models/User')(mongoose),
+    Route: require('./models/Route')(mongoose)
+};
 var imageLocations = "/Users/gkopevski/gk/md/saycheese/images";
 
 var fs = require('fs-extra');
 // configure app to use bodyParser()
 // this will let us get the data from a POST
-//app.use(bodyParser.urlencoded({extended: true}));
-//app.use(bodyParser.json());
-//mongoose.connect(dbPath, function onMongooseError(err) {
-//	if (err) throw err;
-//});
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+mongoose.connect(dbPath, function onMongooseError(err) {
+	if (err) throw err;
+});
 
 
 //http.createServer(function (req, res) {
@@ -122,24 +122,24 @@ app.post('/register', function (req, res) {
         console.log('firstName: ', firstName);
         console.log('lastName: ', lastName);
         console.log('pictureUrl: ', pictureUrl);
-//        models.User.findById(_id, function (user) {
-//            if (user) {
-//                console.log('user already registered');
+        models.User.findById(_id, function (user) {
+            if (user) {
+                console.log('user already registered');
                 res.send(200);
-//            }
-//            else {
-//                console.log("Registering new user...");
-//                res.send(200); // TODO comment
-//                //TODO uncomment
-//				models.User.register(_id, firstName, lastName, pictureUrl, function(success) {
-//					if ( !success ) {
-//						res.send(400);
-//					}else{
-//						res.send(200);
-//					}
-//				});
-//            }
-//        });
+            }
+            else {
+                console.log("Registering new user...");
+                res.send(200); // TODO comment
+                //TODO uncomment
+				models.User.register(_id, firstName, lastName, pictureUrl, function(success) {
+					if ( !success ) {
+						res.send(400);
+					}else{
+						res.send(200);
+					}
+				});
+            }
+        });
     }
 });
 
