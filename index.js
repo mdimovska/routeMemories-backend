@@ -132,7 +132,7 @@ app.post("/deletePicture", function (req, res) {
 
 app.post('/register', function (req, res) {
     var _id = req.body.id;
-    console.log("param id: " + req.params.id);
+    console.log("param id: " + _id);
     var name = req.body.name;
     var pictureUrl = req.body.pictureUrl;
     if (null == _id || _id.length < 1 || _id == '') {
@@ -267,9 +267,11 @@ app.delete('/photos/photo', function (req, res) {
 //get user's routes    //if only /routes/ 404 Not Found error
 // if wrong id (id that do not exists in db), returns []
 app.get('/routes/getRoutesByUser', function (req, res) {
-    var userId = req.params.userId;
+    var userId = req.query.userId;
+    console.log("Getting route list for user with id: '" + userId + "'");
     models.Route.getUserRoutes(userId, function (routeList) {
-        res.sendStatus(routeList);
+        res.setHeader('Content-Type', 'application/json');
+        res.send(routeList);
     });
 });
 
