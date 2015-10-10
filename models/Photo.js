@@ -69,17 +69,11 @@ module.exports = function (mongoose) {
     //returns:
     /*
      [
-     {
      "_id": "53ff492d49aa9e681b000004",
      "photoUrl": "urllllllllllllllll",
      "caption": "captionnnnnnnnnn",
      "dateTaken": "2014-08-28T15:22:21.220Z",
-     "removed": "0",
-     "__v": 0,
-     "likes": [],
-     "comments": []
-     },
-     ...
+     "removed": "0"
      ]
      */
 

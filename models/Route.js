@@ -32,12 +32,27 @@ module.exports = function (mongoose) {
         });
     }
 
-    //OK (route is not deleted from db.. only the flag 'removed' is set to '1' (1 means deleted)
+//    //OK (route is not deleted from db.. only the flag 'removed' is set to '1' (1 means deleted)
+//    var removeRoute = function (route, callback) {
+//        if (null == route)
+//            return;
+//        route.removed = "1";
+//        route.save(function (err) {
+//            if (err) {
+//                callback(false);
+//                console.log('Error deleting the route: ' + err);
+//            } else {
+//                callback(true);
+//                console.log('Route was deleted');
+//            }
+//        });
+//    }
+
+    //OK route is deleted from db
     var removeRoute = function (route, callback) {
         if (null == route)
             return;
-        route.removed = "1";
-        route.save(function (err) {
+        route.remove(function (err) {
             if (err) {
                 callback(false);
                 console.log('Error deleting the route: ' + err);

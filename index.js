@@ -240,6 +240,33 @@ app.post('/routes', function (req, res) {
 
 
 //OK
+//delete route
+app.delete('/routes/:routeId', function (req, res) {
+    var routeId = req.params.routeId;
+    // Missing routeId, don't bother going any further
+    if (null == routeId || routeId == '') {
+        res.sendStatus(400);
+    } else {
+        models.Route.findById(routeId, function (route) {
+            if (!route) {
+                res.sendStatus(400);
+            } else {
+                models.Route.removeRoute(route, function (success) {
+                    console.log('s: ' + success);
+                    console.log('success: ' + JSON.stringify(success));
+                    if (!success) {
+                        res.sendStatus(400);
+                    } else {
+                        res.sendStatus(200);
+                    }
+                });
+            }
+        });
+    }
+});
+
+
+//OK
 //delete photo
 app.delete('/photos/photo', function (req, res) {
     var photoId = req.param('photoId', null);
