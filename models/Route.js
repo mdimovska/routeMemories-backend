@@ -21,12 +21,12 @@ module.exports = function (mongoose) {
             routeName: routeName,
             removed: 0
         });
-        route.save(function (err) {
+        route.save(function (err, savedRoute) {
             if (err) {
                 callback(false);
                 console.log('Error adding the route: ' + err);
             } else {
-                callback(true);
+                callback(true, savedRoute);
                 console.log('Route was added');
             }
         });

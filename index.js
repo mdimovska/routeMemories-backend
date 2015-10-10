@@ -13,6 +13,7 @@ var formidable = require('formidable'),
 // Import the models
 var models = {
     User: require('./models/User')(mongoose),
+    Photo: require('./models/Photo')(mongoose),
     Route: require('./models/Route')(mongoose)
 };
 
@@ -40,10 +41,10 @@ var allowCrossDomain = function (req, res, next) {
 }
 app.use(allowCrossDomain);
 
-app.all('/*', function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
+app.all('/*', function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
 //  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  next();
+    next();
 });
 
 
@@ -223,16 +224,34 @@ app.post('/routes', function (req, res) {
     var startDate = req.body.startDate;
     var endDate = req.body.endDate;
     var routeName = req.body.routeName;
+    var imgList = req.body.imgList;
 
-    if (null === userId || userId.length < 1 || userId === '') {
+    if (null === userId || userId === undefined || userId.length < 1 || userId === '') {
         console.log("Bad request. Trying to add route for a user with id: '" + userId + "'");
         res.sendStatus(400);
     } else {
-        models.Route.addRoute(userId, latLngList, startDate, endDate, routeName, function (success) {
+        models.Route.addRoute(userId, latLngList, startDate, endDate, routeName, function (success, route) {
             if (!success) {
                 res.sendStatus(400);
             } else {
-                res.sendStatus(200);
+                // 
+                console.log("Successfully saved route. Route id: " + route.id);
+                if (imgList !== undefined && imgList !== null && imgList.length > 0) {
+
+                    imgList.forEach(function (image, index) {
+                        image.routeId = route._id;
+                    })
+
+                    models.Photo.addPhotos(imgList, function (success) {
+                        if (!success) {
+                            res.sendStatus(400);
+                        } else {
+                            res.sendStatus(200);
+                        }
+                    });
+                } else {
+                    res.sendStatus(200);
+                }
             }
         });
     }
@@ -268,25 +287,25 @@ app.delete('/routes/:routeId', function (req, res) {
 
 //OK
 //delete photo
-app.delete('/photos/photo', function (req, res) {
-    var photoId = req.param('photoId', null);
+app.delete('/photos/:photoId', function (req, res) {
+    var photoId = req.params.photoId;
     // Missing photoId, don't bother going any further
     if (null == photoId || photoId == '') {
-        res.send(400);
+        res.sendStatus(400);
     } else {
-//        models.Photo.findById(photoId, function (photo) {
-//            if (!photo) {
-//                res.send(400);
-//            } else {
-//                models.Photo.removePhoto(photo, function (success) {
-//                    if (!success) {
-//                        res.send(400);
-//                    } else {
-//                        res.send(200);
-//                    }
-//                });
-//            }
-//        });
+        models.Photo.findById(photoId, function (photo) {
+            if (!photo) {
+                res.sendStatus(400);
+            } else {
+                models.Photo.removePhoto(photo, function (success) {
+                    if (!success) {
+                        res.sendStatus(400);
+                    } else {
+                        res.sendStatus(200);
+                    }
+                });
+            }
+        });
     }
 });
 
@@ -300,6 +319,18 @@ app.get('/routes/getRoutesByUser', function (req, res) {
         res.setHeader('Content-Type', 'application/json');
         res.send(routeList);
     });
+});
+
+//OK
+//get photos by route   //if only /routes/ 404 Not Found error
+// if wrong id (id that do not exists in db), returns []
+app.get('/photos/getPhotosByRoute', function (req, res) {
+    var routeId = req.query.routeId;
+    console.log("Getting photo list for route with id: '" + routeId + "'");
+    models.Photo.getPhotosByRoute(routeId, function (photoList) {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(photoList);
+    });    
 });
 
 //OK
@@ -317,7 +348,12 @@ app.get('/routes/:id', function (req, res) { //404 if /route/
     var routeId = req.params.id;
     models.Route.findById(routeId, function (route) {
         if (route) {
-            res.sendStatus(route);
+            var routeResult = route;
+            models.Photo.getPhotosByRoute(routeId, function (photoList) {
+                routeResult.imgList = photoList;
+                res.sendStatus(routeResult);
+            });
+//            res.sendStatus(route);
         }
         else {
             console.log("Route with id: '" + routeId + "' not found")
@@ -332,7 +368,7 @@ app.get('/routes/:id', function (req, res) { //404 if /route/
 //get user's photos    //if only /photos/ 404 Not Found error
 // if wrong id (id that do not exists in db), returns []
 app.get('/photos/:id', function (req, res) {
-    var userId = req.params.id;
+//    var userId = req.params.id;
 //    models.Photo.getUserPhotos(userId, function (photos) {
 //        res.send(photos);
 //    });
@@ -341,71 +377,28 @@ app.get('/photos/:id', function (req, res) {
 //OK
 //get all photos from database
 app.get('/photos/', function (req, res) {
-//    models.Photo.getAllPhotos(function (photos) {
-//        res.send(photos);
+    models.Photo.getAllPhotos(function (photos) {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(photos);
+    });
+});
+
+//OK
+//returns photo info by photoId 
+//app.get('/photos/:photoId', function (req, res) { //404 if /route/
+//    var photoId = req.params.photoId;
+//    models.Photo.findById(photoId, function (photo) {
+//        if (photo) {
+//            res.sendStatus(photo);
+//        } else {
+//            console.log("Photo with id: '" + photoId + "' not found")
+//            res.sendStatus(400);
+//        }
 //    });
-});
-
-//OK
-//add comment
-app.post('/photos/comment', function (req, res) {
-    var userId = req.param('userId', null);
-    var photoId = req.param('photoId', null);
-    var firstName = req.param('firstName', null);
-    var lastName = req.param('lastName', null);
-    var comment = req.param('comment', null);
-
-    // Missing contactId, don't bother going any further
-    if (null == userId || userId == '' || null == comment || comment == '' || null == photoId || photoId == '') {
-        res.send(400);
-    } else {
-//        models.Photo.findById(photoId, function (photo) {
-//            if (photo) {
-//                models.Photo.addComment(photo, userId, firstName, lastName, comment, function (success) {
-//                    if (!success) {
-//                        res.send(400);
-//                    } else {
-//                        res.send(200);
-//                    }
-//                });
-//            }
-//            else {
-//                res.send(400);
-//            }
-//        });
-    }
-});
-
-//OK
-//add like (or remove like if exists)
-app.post('/photos/like', function (req, res) {
-    var userId = req.param('userId', null);
-    var photoId = req.param('photoId', null);
-    var firstName = req.param('firstName', null);
-    var lastName = req.param('lastName', null);
-
-    // Missing contactId, don't bother going any further
-    if (null == userId || userId == '' || null == photoId || photoId == '') {
-        res.send(400);
-    } else {
-//        models.Photo.findById(photoId, function (photo, err) {
-//            if (photo) {
-//                models.Photo.addOrRemoveLike(photo, userId, firstName, lastName, function (success) {
-//                    if (!success) {
-//                        res.send(400);
-//                    } else {
-//                        res.send(200);
-//                    }
-//                });
-//            } else {
-//                res.send(400);
-//            }
-//        });
-    }
-});
+//});
 
 app.set('port', (process.env.PORT || 5000));
 
-app.listen(app.get('port'), function() {
+app.listen(app.get('port'), function () {
     console.log('Node app is running on port', app.get('port'));
 });

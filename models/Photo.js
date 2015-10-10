@@ -2,29 +2,24 @@ module.exports = function (mongoose) {
 
     var PhotoSchema = new mongoose.Schema({
         routeId: {type: String},
-        photoUrl: {type: String},
-//        caption: {type: String},
+        imgData: {type: String},
         lat: {type: String},
         lng: {type: String},
-        dateTaken: {type: Date},
-        removed: {type: String}, //0-not removed, 1-removed
-        photoWidth: {type: String},
-        photoHeight: {type: String},
+        dateTaken: {type: Date}
+//        removed: {type: String} //0-not removed, 1-removed
     });
 
     var Photo = mongoose.model('Photo', PhotoSchema);
 
     //OK
-    var addPhoto = function (routeId, photoUrl, lat, lng, dateTaken, photoWidth, photoHeight, callback) {
+    var addPhoto = function (routeId, imgData, lat, lng, dateTaken, callback) {
         var photo = new Photo({
             routeId: routeId,
-            photoUrl: photoUrl,
+            imgData: imgData,
             lat: lat,
             lng: lng,
-            dateTaken: dateTaken,
-            photoWidth: photoWidth,
-            photoHeight: photoHeight,
-            removed: 0
+            dateTaken: dateTaken
+//            removed: 0
         });
         photo.save(function (err) {
             if (err) {
@@ -37,12 +32,43 @@ module.exports = function (mongoose) {
         });
     }
 
-    //OK (photo is not deleted from db.. only the flag 'removed' is set to '1' (1 means deleted)
+    var addPhotos = function (imgList, callback) {
+        if (imgList === null || imgList.length === 0) {
+            callback(true);
+            return;
+        }
+        Photo.collection.insert(imgList, function (err) {
+            if (err) {
+                callback(false);
+                console.log('Error adding photos: ' + err);
+            } else {
+                callback(true);
+                console.info('%d photos were successfully stored.', imgList.length);
+            }
+        });
+    }
+
+//    //OK (photo is not deleted from db.. only the flag 'removed' is set to '1' (1 means deleted)
+//    var removePhoto = function (photo, callback) {
+//        if (null == photo)
+//            return;
+//        photo.removed = "1";
+//        photo.save(function (err) {
+//            if (err) {
+//                callback(false);
+//                console.log('Error deleting the photo: ' + err);
+//            } else {
+//                callback(true);
+//                console.log('Photo was deleted');
+//            }
+//        });
+//    }
+//    
+    //OK (photo is deleted from db
     var removePhoto = function (photo, callback) {
         if (null == photo)
             return;
-        photo.removed = "1";
-        photo.save(function (err) {
+        photo.remove(function (err) {
             if (err) {
                 callback(false);
                 console.log('Error deleting the photo: ' + err);
@@ -66,16 +92,6 @@ module.exports = function (mongoose) {
             callback(doc);
         });
     }
-    //returns:
-    /*
-     [
-     "_id": "53ff492d49aa9e681b000004",
-     "photoUrl": "urllllllllllllllll",
-     "caption": "captionnnnnnnnnn",
-     "dateTaken": "2014-08-28T15:22:21.220Z",
-     "removed": "0"
-     ]
-     */
 
     //OK
     var getAllPhotos = function (callback) {
@@ -84,11 +100,27 @@ module.exports = function (mongoose) {
         });
     }
 
+    //OK
+    var getPhotosByRoute = function (routeId, callback) {
+//        Route.find({userId: userId, removed: "0"}, {}, {sort: {startDate: -1}}, function (err, doc) { //check
+//            callback(doc);
+//        });
+        console.log("getting photos by route with id: " + routeId);
+        Photo.find({routeId: routeId}, {}, {sort: {dateTaken: -1}}, function (err, doc) {
+            callback(doc);
+        });
+//        Photo.find({}, {}, {sort: {dateTaken: -1}}, function (err, doc) { //check
+//            callback(doc);
+//        });
+    }
+
 
     return {
         findById: findById,
         addPhoto: addPhoto,
+        addPhotos: addPhotos,
         removePhoto: removePhoto,
+        getPhotosByRoute: getPhotosByRoute,
         getRoutePhotos: getRoutePhotos,
         getAllPhotos: getAllPhotos,
         Photo: Photo
