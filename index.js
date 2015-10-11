@@ -13,11 +13,9 @@ var formidable = require('formidable'),
 // Import the models
 var models = {
     User: require('./models/User')(mongoose),
-    Photo: require('./models/Photo')(mongoose),
+    Image: require('./models/Image')(mongoose),
     Route: require('./models/Route')(mongoose)
 };
-
-var imageLocations = "/Users/gkopevski/gk/md/saycheese/images";
 
 var app = express();
 
@@ -47,89 +45,9 @@ app.all('/*', function (req, res, next) {
     next();
 });
 
-
-//http.createServer(function (req, res) {
-//    /* Display the file upload form. */
-//    res.writeHead(200, {'content-type': 'text/html'});
-//    res.end(
-//            '<form action="http://127.0.0.1:9000/upload" enctype="multipart/form-data" method="post">' +
-//            '<input type="text" name="_id" id="_id"><br>' +
-//            '<input type="file" name="upload" multiple="multiple"><br>' +
-//            '<input type="submit" value="Upload">' +
-//            '</form>'
-//            );
-//
-//}).listen(8080);
-
 app.get('/', function (req, res) {
     next();
 });
-//app.get("/picture/:id/:imageId", function (req, res) {
-//    var img = fs.readFileSync("/Users/gkopevski/gk/md/saycheese/images/" + req.params.id + "/" + req.params.imageId);
-//    res.writeHead(200, {'Content-Type': 'image/jpg'});
-//    res.end(img, 'binary');
-//});
-
-
-//app.post("/upload", function (req, res) {
-//    var form = new formidable.IncomingForm();
-//
-//    form.parse(req, function (err, fields, files) {
-//        var targetDirectory = imageLocations + "/" + fields._id;
-//        fs.ensureDir(targetDirectory, function (err) {
-//            console.log(err); //null
-//        });
-//        res.writeHead(200, {'content-type': 'text/plain'});
-//        res.write('received upload:\n\n');
-//        res.end(util.inspect({fields: fields, files: files}));
-//
-//        fs.copy(files.path.path, targetDirectory + "/" + files.path.name, function (err) {
-//            if (err) {
-//                console.error(err);
-//            }
-//            else {
-//                console.log("success!");
-//                var userId = fields._id;
-//                var firstName = fields.firstName;
-//                var lastName = fields.lastName;
-//                var photoUrl = fields.photoUrl;
-//                var photoWidth = fields.photoWidth;
-//                var photoHeight = fields.photoHeight;
-//                var caption = fields.caption;
-//                if (null == userId || userId.length < 1 || userId == '' || null == photoUrl || photoUrl.length < 1 || photoUrl == '') {
-//                    console.log('empty inputs for photo saving');
-//                } else {
-////                    models.Photo.addPhoto(userId, firstName, lastName, photoUrl, caption, photoWidth, photoHeight, function (success) {
-////                        if (!success) {
-////                            console.log('error in saving the photo');
-////                        } else {
-////                            console.log('photo saved');
-////                        }
-////                    });
-//                }
-//            }
-//        }); //copies file
-//    });
-//    return;
-//});
-
-//not necessary
-app.post("/deletePicture", function (req, res) {
-    var _profileId = req.param('_profileId', null);
-    var _pictureId = req.param('_pictureId', null);
-
-
-    fs.remove(imageLocations + "/" + _profileId + "/" + _pictureId, function (err) {
-        if (err) {
-            return res.send(401);
-        } else {
-            console.log("success!");
-            return res.send(200);
-        }
-    });
-
-});
-
 
 app.post('/register', function (req, res) {
     var _id = req.body.id;
@@ -194,28 +112,6 @@ app.get('/users/:id', function (req, res) { //404 if /users/
 // ============================== PHOTOS ============================== //
 
 //OK
-//add photo (not used)
-app.post('/photos/photo', function (req, res) {
-    console.log('add photo request');
-    var userId = req.param('userId', null);
-    var name = req.param('name', null);
-    var photoUrl = req.param('photoUrl', null);
-    var caption = req.param('caption', null);
-    if (null == userId || userId.length < 1 || userId == '' || null == photoUrl || photoUrl.length < 1 || photoUrl == '') {
-        res.send(400);
-    } else {
-//        models.Photo.addPhoto(userId, name, photoUrl, caption, function (success) {
-//            if (!success) {
-//                res.send(400);
-//            } else {
-//                res.send(200);
-//            }
-//        });
-    }
-});
-
-
-//OK
 //add route
 app.post('/routes', function (req, res) {
     console.log('add route request');
@@ -239,10 +135,10 @@ app.post('/routes', function (req, res) {
                 if (imgList !== undefined && imgList !== null && imgList.length > 0) {
 
                     imgList.forEach(function (image, index) {
-                        image.routeId = route._id;
+                        image['routeId'] = route._id;
                     })
 
-                    models.Photo.addPhotos(imgList, function (success) {
+                    models.Image.addImages(imgList, function (success) {
                         if (!success) {
                             res.sendStatus(400);
                         } else {
@@ -286,18 +182,18 @@ app.delete('/routes/:routeId', function (req, res) {
 
 
 //OK
-//delete photo
-app.delete('/photos/:photoId', function (req, res) {
-    var photoId = req.params.photoId;
-    // Missing photoId, don't bother going any further
-    if (null == photoId || photoId == '') {
+//delete image
+app.delete('/images/:imageId', function (req, res) {
+    var imageId = req.params.imageId;
+    // Missing imageId, don't bother going any further
+    if (null == imageId || imageId == '') {
         res.sendStatus(400);
     } else {
-        models.Photo.findById(photoId, function (photo) {
-            if (!photo) {
+        models.Image.findById(imageId, function (image) {
+            if (!image) {
                 res.sendStatus(400);
             } else {
-                models.Photo.removePhoto(photo, function (success) {
+                models.Image.removeImage(image, function (success) {
                     if (!success) {
                         res.sendStatus(400);
                     } else {
@@ -322,14 +218,14 @@ app.get('/routes/getRoutesByUser', function (req, res) {
 });
 
 //OK
-//get photos by route   //if only /routes/ 404 Not Found error
+//get images by route   //if only /routes/ 404 Not Found error
 // if wrong id (id that do not exists in db), returns []
-app.get('/photos/getPhotosByRoute', function (req, res) {
+app.get('/images/getImagesByRoute', function (req, res) {
     var routeId = req.query.routeId;
-    console.log("Getting photo list for route with id: '" + routeId + "'");
-    models.Photo.getPhotosByRoute(routeId, function (photoList) {
+    console.log("Getting image list for route with id: '" + routeId + "'");
+    models.Image.getImagesByRoute(routeId, function (imageList) {
         res.setHeader('Content-Type', 'application/json');
-        res.send(photoList);
+        res.send(imageList);
     });    
 });
 
@@ -349,8 +245,8 @@ app.get('/routes/:id', function (req, res) { //404 if /route/
     models.Route.findById(routeId, function (route) {
         if (route) {
             var routeResult = route;
-            models.Photo.getPhotosByRoute(routeId, function (photoList) {
-                routeResult.imgList = photoList;
+            models.Image.getImagesByRoute(routeId, function (imageList) {
+                routeResult.imgList = imageList;
                 res.sendStatus(routeResult);
             });
 //            res.sendStatus(route);
@@ -363,39 +259,28 @@ app.get('/routes/:id', function (req, res) { //404 if /route/
 });
 
 
-
 //OK
-//get user's photos    //if only /photos/ 404 Not Found error
-// if wrong id (id that do not exists in db), returns []
-app.get('/photos/:id', function (req, res) {
-//    var userId = req.params.id;
-//    models.Photo.getUserPhotos(userId, function (photos) {
-//        res.send(photos);
-//    });
-});
-
-//OK
-//get all photos from database
-app.get('/photos/', function (req, res) {
-    models.Photo.getAllPhotos(function (photos) {
+//get all images from database
+app.get('/images/', function (req, res) {
+    models.Image.getAllImages(function (images) {
         res.setHeader('Content-Type', 'application/json');
-        res.send(photos);
+        res.send(images);
     });
 });
 
 //OK
-//returns photo info by photoId 
-//app.get('/photos/:photoId', function (req, res) { //404 if /route/
-//    var photoId = req.params.photoId;
-//    models.Photo.findById(photoId, function (photo) {
-//        if (photo) {
-//            res.sendStatus(photo);
-//        } else {
-//            console.log("Photo with id: '" + photoId + "' not found")
-//            res.sendStatus(400);
-//        }
-//    });
-//});
+//returns image info by imageId 
+app.get('/images/:imageId', function (req, res) { //404 if /route/
+    var imageId = req.params.imageId;
+    models.Image.findById(imageId, function (image) {
+        if (image) {
+            res.sendStatus(image);
+        } else {
+            console.log("Image with id: '" + imageId + "' not found")
+            res.sendStatus(400);
+        }
+    });
+});
 
 app.set('port', (process.env.PORT || 5000));
 

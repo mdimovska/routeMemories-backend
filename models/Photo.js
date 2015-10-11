@@ -101,17 +101,30 @@ module.exports = function (mongoose) {
     }
 
     //OK
-    var getPhotosByRoute = function (routeId, callback) {
-//        Route.find({userId: userId, removed: "0"}, {}, {sort: {startDate: -1}}, function (err, doc) { //check
+    var getPhotosByRoute = function (route, callback) {
+        console.log("getting photos by route with id: " + route);
+//        Photo.find({'routeId': routeId}, {}, {sort: {dateTaken: -1}}, function (err, doc) {
+//            console.log("res: " + doc);
+//            console.log("res: " + JSON.stringify(doc));
 //            callback(doc);
 //        });
-        console.log("getting photos by route with id: " + routeId);
-        Photo.find({routeId: routeId}, {}, {sort: {dateTaken: -1}}, function (err, doc) {
+//        var query = Photo.find({});
+//        query.where('routeId', routeId);
+//
+//        query.exec(function (err, docs) {
+//            // called when the `query.complete` or `query.error` are called
+//            // internally
+//            console.log("res: " + JSON.stringify(docs));
+//            callback(docs);
+//        });
+//        Photo.find({ 'routeId': routeId }, function (err, doc) {
+//            console.log("res: " + doc);
+//            console.log("res: " + JSON.stringify(doc));
+//            callback(doc);
+//        });
+        Photo.find({routeId: route}, '-routeId', function (err, doc) { //check
             callback(doc);
         });
-//        Photo.find({}, {}, {sort: {dateTaken: -1}}, function (err, doc) { //check
-//            callback(doc);
-//        });
     }
 
 
