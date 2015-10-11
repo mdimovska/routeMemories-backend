@@ -135,7 +135,7 @@ app.post('/routes', function (req, res) {
                 if (imgList !== undefined && imgList !== null && imgList.length > 0) {
 
                     imgList.forEach(function (image, index) {
-                        image['routeId'] = route._id;
+                        image.routeId = route.id;
                     })
 
                     models.Image.addImages(imgList, function (success) {
