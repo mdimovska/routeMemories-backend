@@ -135,7 +135,7 @@ app.post('/routes', function (req, res) {
                 if (imgList !== undefined && imgList !== null && imgList.length > 0) {
 
                     imgList.forEach(function (image, index) {
-                        image['routeId'] = route._id;
+                        image.routeId = route.id;
                     })
 
                     models.Image.addImages(imgList, function (success) {
@@ -159,20 +159,26 @@ app.post('/routes', function (req, res) {
 app.delete('/routes/:routeId', function (req, res) {
     var routeId = req.params.routeId;
     // Missing routeId, don't bother going any further
-    if (null == routeId || routeId == '') {
+    if (null === routeId || routeId === '') {
         res.sendStatus(400);
     } else {
         models.Route.findById(routeId, function (route) {
             if (!route) {
                 res.sendStatus(400);
             } else {
-                models.Route.removeRoute(route, function (success) {
-                    console.log('s: ' + success);
-                    console.log('success: ' + JSON.stringify(success));
+                models.Image.removeImagesByRoute(routeId, function (success) {
                     if (!success) {
                         res.sendStatus(400);
                     } else {
-                        res.sendStatus(200);
+                        models.Route.removeRoute(route, function (success) {
+                            console.log('s: ' + success);
+                            console.log('success: ' + JSON.stringify(success));
+                            if (!success) {
+                                res.sendStatus(400);
+                            } else {
+                                res.sendStatus(200);
+                            }
+                        });
                     }
                 });
             }
@@ -226,7 +232,7 @@ app.get('/images/getImagesByRoute', function (req, res) {
     models.Image.getImagesByRoute(routeId, function (imageList) {
         res.setHeader('Content-Type', 'application/json');
         res.send(imageList);
-    });    
+    });
 });
 
 //OK
@@ -244,12 +250,13 @@ app.get('/routes/:id', function (req, res) { //404 if /route/
     var routeId = req.params.id;
     models.Route.findById(routeId, function (route) {
         if (route) {
-            var routeResult = route;
-            models.Image.getImagesByRoute(routeId, function (imageList) {
-                routeResult.imgList = imageList;
-                res.sendStatus(routeResult);
-            });
-//            res.sendStatus(route);
+//            var routeResult = route;
+//            models.Image.getImagesByRoute(route.id, function (imageList) {
+//                console.log("imageList: " + JSON.stringify(imageList));
+//                route['imgList'] = imageList;
+//                res.sendStatus(route);
+//            });
+            res.sendStatus(route);
         }
         else {
             console.log("Route with id: '" + routeId + "' not found")

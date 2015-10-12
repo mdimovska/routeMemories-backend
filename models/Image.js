@@ -103,27 +103,20 @@ module.exports = function (mongoose) {
     //OK
     var getImagesByRoute = function (routeId, callback) {
         console.log("getting images by route with id: " + routeId);
-//        Image.find({'routeId': routeId}, {}, {sort: {dateTaken: -1}}, function (err, doc) {
-//            console.log("res: " + doc);
-//            console.log("res: " + JSON.stringify(doc));
-//            callback(doc);
-//        });
-//        var query = Image.find({});
-//        query.where('routeId', routeId);
-//
-//        query.exec(function (err, docs) {
-//            // called when the `query.complete` or `query.error` are called
-//            // internally
-//            console.log("res: " + JSON.stringify(docs));
-//            callback(docs);
-//        });
-//        Image.find({ 'routeId': routeId }, function (err, doc) {
-//            console.log("res: " + doc);
-//            console.log("res: " + JSON.stringify(doc));
-//            callback(doc);
-//        });
         Image.find({routeId: routeId}, function (err, doc) { //check
             callback(doc);
+        });
+    }
+
+    var removeImagesByRoute = function (routeId, callback) {
+        Image.remove({routeId: routeId}, function (err) {
+            if (err) {
+                console.log('Error removing images: ' + err);
+                callback(false);
+            } else {
+                callback(true);
+                console.log('Images were removed');
+            }
         });
     }
 
@@ -136,6 +129,7 @@ module.exports = function (mongoose) {
         getImagesByRoute: getImagesByRoute,
         getRouteImages: getRouteImages,
         getAllImages: getAllImages,
+        removeImagesByRoute: removeImagesByRoute,
         Image: Image
     }
 }

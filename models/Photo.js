@@ -100,29 +100,21 @@ module.exports = function (mongoose) {
         });
     }
 
+    var removePhotosByRoute = function (routeId, callback) {
+        Photo.remove({routeId: routeId}, function (err) {
+            if (err) {
+                console.log('Error removing photos: ' + err);
+                callback(false);
+            } else {
+                callback(true);
+                console.log('Photos were removed');
+            }
+        });
+    }
     //OK
-    var getPhotosByRoute = function (route, callback) {
+    var getPhotosByRoute = function (routeId, callback) {
         console.log("getting photos by route with id: " + route);
-//        Photo.find({'routeId': routeId}, {}, {sort: {dateTaken: -1}}, function (err, doc) {
-//            console.log("res: " + doc);
-//            console.log("res: " + JSON.stringify(doc));
-//            callback(doc);
-//        });
-//        var query = Photo.find({});
-//        query.where('routeId', routeId);
-//
-//        query.exec(function (err, docs) {
-//            // called when the `query.complete` or `query.error` are called
-//            // internally
-//            console.log("res: " + JSON.stringify(docs));
-//            callback(docs);
-//        });
-//        Photo.find({ 'routeId': routeId }, function (err, doc) {
-//            console.log("res: " + doc);
-//            console.log("res: " + JSON.stringify(doc));
-//            callback(doc);
-//        });
-        Photo.find({routeId: route}, '-routeId', function (err, doc) { //check
+        Photo.find({routeId: routeId}, '-routeId', function (err, doc) { //check
             callback(doc);
         });
     }
